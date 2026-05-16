@@ -1,14 +1,264 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>Drops & Battles</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script type="module" crossorigin src="/assets/index-BHKTCb7p.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-APOz54Vw.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Drops & Battles | GPSS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 20% 0%, #0a0a1a, #02020a);
+            min-height: 100vh;
+            color: #fff;
+            padding: 16px;
+            padding-bottom: 100px;
+            opacity: 0;
+            animation: fadeBody 0.5s ease-out forwards;
+        }
+        @keyframes fadeBody { to { opacity: 1; } }
+        .glass-card { background: rgba(20, 25, 45, 0.5); backdrop-filter: blur(12px); border: 1px solid rgba(124,58,237,0.3); border-radius: 28px; }
+        .fade-up { opacity: 0; transform: translateY(20px); animation: slideUp 0.4s ease forwards; }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        .user-stats { display: flex; justify-content: space-between; background: linear-gradient(135deg, #1e1a3a, #0f0b2a); border-radius: 32px; padding: 14px 18px; margin-bottom: 20px; border: 1px solid #7c3aed60; }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-value { font-size: 22px; font-weight: 800; }
+        .stat-label { font-size: 11px; color: #b0b0d0; }
+
+        .balance-row { display: flex; justify-content: space-between; padding: 14px 18px; margin-bottom: 20px; font-weight: 700; font-size: 18px; }
+        .rates-short { display: flex; justify-content: space-between; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; background: rgba(0,0,0,0.4); border-radius: 28px; }
+
+        .wheel-block { text-align: center; padding: 18px; margin-bottom: 24px; }
+        .wheel-icon { font-size: 90px; cursor: pointer; transition: 0.1s linear; display: inline-block; }
+        .wheel-icon:active { transform: scale(0.94); }
+        .prizes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0; }
+        .prize-chip { background: #2a235a; border-radius: 40px; padding: 4px 14px; font-size: 12px; }
+        .energy-free { background: #2a2a55; border-radius: 48px; padding: 6px 14px; display: inline-block; margin: 8px auto; }
+
+        .daily-card { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin: 20px 0; background: #19163f; border-radius: 32px; border: 1px solid #a855f7; }
+
+        .wallets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px; }
+        .wallet-chip { background: #13112b; border-radius: 60px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #4a3e7a; cursor: pointer; transition: 0.2s; }
+
+        .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .service-btn { background: linear-gradient(135deg, #2a235a, #1a1240); border-radius: 60px; padding: 12px; text-align: center; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid #6a4e9b; }
+        .service-btn:active { transform: scale(0.96); }
+        .info-btn { background: #1e1a3a; border-radius: 40px; padding: 12px; text-align: center; font-weight: 600; margin-top: 8px; border: 1px solid #9b6eff; cursor: pointer; }
+
+        .socials { position: fixed; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 200; }
+        .social-icon { background: #11101fcc; backdrop-filter: blur(8px); width: 44px; height: 44px; border-radius: 44px; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: 0.2s; border: 1px solid #7c3aed80; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
+        .modal-box { background: #12102f; border-radius: 32px; max-width: 340px; width: 85%; padding: 24px; text-align: center; border: 1px solid #a855f7; }
+
+        /* рейтинг */
+        .rank-table { background: #0e0c22; border-radius: 24px; padding: 12px; margin-bottom: 20px; }
+        .rank-row { display: flex; justify-content: space-between; padding: 8px 8px; border-bottom: 1px solid #2a2560; }
+        .rank-header { color: #c084fc; font-weight: 700; }
+        @media (max-width: 560px) { .service-grid { grid-template-columns: repeat(2,1fr); } .stat-value { font-size: 18px; } }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
+
+<div class="socials" id="socialsContainer"></div>
+
+<div class="user-stats fade-up" style="animation-delay: 0.05s;">
+    <div class="stat-item"><div class="stat-value" id="userLevel">1</div><div class="stat-label">Уровень</div></div>
+    <div class="stat-item"><div class="stat-value" id="userXP">0</div><div class="stat-label">Опыт</div></div>
+    <div class="stat-item"><div class="stat-value" id="userRank">🏆</div><div class="stat-label">Рейтинг</div></div>
+    <div class="stat-item"><div class="stat-value" id="userEnergyDaily">100</div><div class="stat-label">Энергия дня</div></div>
+</div>
+
+<div class="glass-card balance-row fade-up" style="animation-delay: 0.1s;">
+    <div>⭐ <span id="stars">0</span></div>
+    <div>🟢 <span id="vts">0</span> VTS</div>
+    <div>🔵 <span id="nts">0</span> NTS</div>
+</div>
+
+<div class="rates-short fade-up" style="animation-delay: 0.15s;">
+    <div>⭐ 50 Stars = 88 ₽</div>
+    <div>🟢 1 VTS = 1000 ₽</div>
+    <div>🔵 1 NTS = 10 000 ₽</div>
+</div>
+
+<div class="wallets fade-up" id="walletsList" style="animation-delay: 0.2s;"></div>
+
+<!-- Рейтинг -->
+<div class="glass-card fade-up" style="padding: 16px; margin-bottom: 20px;">
+    <div style="font-weight: 800; margin-bottom: 12px;">🏆 ОБЩИЙ РЕЙТИНГ (по VTS)</div>
+    <div id="ratingContainer" class="rank-table"></div>
+    <div id="userRatingPlace" style="text-align:center; margin-top: 8px; font-size:13px;"></div>
+</div>
+
+<div class="glass-card wheel-block fade-up" style="animation-delay: 0.25s;">
+    <div class="wheel-icon" id="wheelSpinBtn">🎡</div>
+    <div class="prizes" id="prizesList"></div>
+    <div id="wheelResult" style="margin: 6px 0; font-size: 14px;"></div>
+    <div class="energy-free" id="dailyEnergyInfo">⚡ Бесплатное вращение: доступно</div>
+    <button id="paidSpinBtn" style="background:#3a2e7a; border:none; border-radius:40px; padding:8px 20px; margin-top:6px;">➕ Купить вращение (5⭐)</button>
+    <button id="cryptoPaySpinBtn" style="background:#1e2a3a; border-radius:40px; padding:8px 20px; margin-top:6px;">💎 Купить вращение за TON</button>
+    <button id="resetBalanceBtn" style="background:#6b21a5; border:none; border-radius:40px; padding:6px 16px; margin-top:8px;">🔄 Демо-сброс</button>
+</div>
+
+<div class="daily-card fade-up" style="animation-delay: 0.3s;">
+    <div>⚡ Суточная энергия: <span id="dailyEnergyAmount">100</span> ед.</div>
+    <button id="claimDailyEnergyBtn" style="background:#10b981; border:none; border-radius:40px; padding:6px 18px;">Забрать</button>
+</div>
+
+<div class="service-grid fade-up" style="animation-delay: 0.35s;">
+    <div class="service-btn" data-service="battles">⚔️ Батлы</div>
+    <div class="service-btn" data-service="bets">📈 Ставки</div>
+    <div class="service-btn" data-service="politics">🏛️ Политика</div>
+    <div class="service-btn" data-service="referral">👥 Рефералы</div>
+    <div class="service-btn" data-service="admin">👑 Админ</div>
+    <div class="service-btn" id="faqBtn">❓ FAQ</div>
+</div>
+<div class="info-btn" id="aboutBtn">ℹ️ О системе</div>
+
+<div id="cryptoModal" class="modal"><div class="modal-box"><h3>💎 Оплата криптой</h3><div id="cryptoWalletsList"></div><button id="closeCryptoModal" style="background:#7c3aed; margin-top:16px;">Закрыть</button></div></div>
+<div id="faqModal" class="modal"><div class="modal-box"><h3>📘 FAQ</h3><p>VTS=1000₽, NTS=10000₽. Бесплатное вращение — 1р/12ч. Доп. вращения — 5⭐ или TON.</p><button id="closeFaqBtn">Закрыть</button></div></div>
+<div id="aboutModal" class="modal"><div class="modal-box"><h3>🚀 GPSS Drops & Battles</h3><p>Децентрализованная экосистема, токены конвертируются после дропа.</p><button id="closeAboutBtn">Закрыть</button></div></div>
+
+<script>
+    (function(){
+        // ========== ДАННЫЕ ==========
+        let balance = { starsBalance: 1250, vtsBalance: 320, ntsBalance: 45 };
+        let usersRanks = [
+            { name: "Крипто-Король", vts: 12500 },
+            { name: "Биткоин-Магнат", vts: 8900 },
+            { name: "Инвестор PRO", vts: 4500 },
+            { name: "Трейдер 2026", vts: 2100 },
+            { name: "Ходлер", vts: 980 },
+            { name: "Вы (тестовый)", vts: balance.vtsBalance, isMe: true }
+        ];
+        const SPIN_PRIZES = [
+            { amount: 0.1, type: 'vts' }, { amount: 0.3, type: 'vts' }, { amount: 0.01, type: 'vts' },
+            { amount: 0.05, type: 'vts' }, { amount: 0.07, type: 'vts' }, { amount: 0.001, type: 'nts' },
+            { amount: 0.005, type: 'nts' }, { amount: 0.07, type: 'nts' }, { amount: 0.1, type: 'nts' }
+        ];
+        const SPIN_COST_STARS = 5;
+        const DAILY_ENERGY_AMOUNT = 100;
+
+        // DOM
+        const starsSpan = document.getElementById('stars');
+        const vtsSpan = document.getElementById('vts');
+        const ntsSpan = document.getElementById('nts');
+        const wheelResultDiv = document.getElementById('wheelResult');
+        const dailyEnergyInfoSpan = document.getElementById('dailyEnergyInfo');
+        const ratingContainer = document.getElementById('ratingContainer');
+        const userRatingPlace = document.getElementById('userRatingPlace');
+        const prizesContainer = document.getElementById('prizesList');
+        const walletsContainer = document.getElementById('walletsList');
+        const socialsContainer = document.getElementById('socialsContainer');
+
+        function renderPrizes() { prizesContainer.innerHTML = SPIN_PRIZES.map(p => `<span class="prize-chip">${p.amount} ${p.type.toUpperCase()}</span>`).join(''); }
+        renderPrizes();
+
+        function updateUI() {
+            starsSpan.innerText = balance.starsBalance;
+            vtsSpan.innerText = balance.vtsBalance;
+            ntsSpan.innerText = balance.ntsBalance;
+            usersRanks.find(u => u.isMe).vts = balance.vtsBalance;
+            renderRating();
+        }
+
+        // === РЕЙТИНГ ===
+        function renderRating() {
+            const sorted = [...usersRanks].sort((a,b)=> b.vts - a.vts);
+            ratingContainer.innerHTML = `<div class="rank-row rank-header"><span>#</span><span>Пользователь</span><span>VTS</span></div>`;
+            sorted.forEach((u, idx) => {
+                ratingContainer.innerHTML += `<div class="rank-row"><span>${idx+1}</span><span>${u.name} ${u.isMe ? '👈' : ''}</span><span>${u.vts}</span></div>`;
+                if(u.isMe) userRatingPlace.innerText = `📍 Ваше место в рейтинге: ${idx+1} из ${sorted.length}`;
+            });
+        }
+        function updateRankAfterSpin(amount, type) {
+            if(type === 'vts') balance.vtsBalance += amount;
+            else balance.ntsBalance += amount;
+            updateUI();
+        }
+
+        // КОЛЕСО (бесплатное / за звёзды / крипта)
+        function getLastFreeSpin() { return localStorage.getItem('lastFreeSpinTime'); }
+        function setLastFreeSpin() { localStorage.setItem('lastFreeSpinTime', Date.now()); }
+        function canSpinFree() { const last = parseInt(getLastFreeSpin()); if(!last) return true; return (Date.now() - last) > 12*3600*1000; }
+        function updateFreeSpinText() { dailyEnergyInfoSpan.innerText = canSpinFree() ? '⚡ Бесплатное вращение: доступно' : '⏳ Бесплатное вращение через несколько часов'; }
+
+        async function spinWheel(isFree = true, paidWithCrypto = false) {
+            if(isFree && !canSpinFree()) { alert('Бесплатное вращение недоступно'); return; }
+            if(!isFree && !paidWithCrypto && balance.starsBalance < SPIN_COST_STARS) { alert(`Недостаточно Stars (нужно ${SPIN_COST_STARS}⭐)`); return; }
+            if(paidWithCrypto) { if(!confirm('💎 Оплатить вращение TON (0.1 TON)?')) return; alert('✅ TON оплата принята'); }
+            else if(!isFree) { balance.starsBalance -= SPIN_COST_STARS; }
+            const prize = SPIN_PRIZES[Math.floor(Math.random() * SPIN_PRIZES.length)];
+            if(prize.type === 'vts') balance.vtsBalance += prize.amount;
+            else balance.ntsBalance += prize.amount;
+            if(isFree) setLastFreeSpin();
+            updateUI();
+            updateFreeSpinText();
+            wheelResultDiv.innerText = `🎉 Выигрыш: ${prize.amount} ${prize.type.toUpperCase()}!`;
+            setTimeout(() => { if(wheelResultDiv.innerText.includes('Выигрыш')) wheelResultDiv.innerText = ''; }, 2500);
+            renderRating();
+        }
+
+        // суточная энергия
+        function canClaimDaily() { const last = localStorage.getItem('lastDailyEnergy'); if(!last) return true; return (Date.now() - parseInt(last)) > 24*3600*1000; }
+        function updateDailyButton() { const btn = document.getElementById('claimDailyEnergyBtn'); if(canClaimDaily()) { btn.innerText='Забрать'; btn.disabled=false; } else { btn.innerText='Выдана'; btn.disabled=true; } }
+        function claimDaily() { if(!canClaimDaily()) { alert('Суточная энергия уже получена!'); return; } localStorage.setItem('lastDailyEnergy',Date.now()); alert(`✅ +${DAILY_ENERGY_AMOUNT} энергии`); updateDailyButton(); }
+
+        // демо-сброс
+        function resetDemo() { balance = { starsBalance: 1000, vtsBalance: 300, ntsBalance: 80 }; updateUI(); renderRating(); alert('Демо-сброс выполнен'); }
+
+        // крипто-модалка для других сервисов + покупка вращения за TON
+        let activeService = null;
+        function showCryptoModal(serviceName = null) {
+            activeService = serviceName;
+            const modal = document.getElementById('cryptoModal');
+            const walletsDiv = document.getElementById('cryptoWalletsList');
+            walletsDiv.innerHTML = '';
+            const wallets = document.querySelectorAll('.wallet-chip');
+            wallets.forEach(w => {
+                const currency = w.innerText.trim();
+                const btn = document.createElement('button');
+                btn.innerText = `💸 Оплатить ${activeService || 'услугу'} через ${currency}`;
+                btn.style.background = '#2a235a';
+                btn.style.border = 'none';
+                btn.style.borderRadius = '40px';
+                btn.style.padding = '8px';
+                btn.style.margin = '6px 0';
+                btn.style.width = '100%';
+                btn.onclick = () => { alert(`💎 Оплата ${activeService || 'услуги'} через ${currency} выполнена (демо)`); modal.style.display = 'none'; };
+                walletsDiv.appendChild(btn);
+            });
+            modal.style.display = 'flex';
+        }
+
+        // кошельки и соцсети (имитация админки)
+        function loadWallets() { walletsContainer.innerHTML = `<div class="wallet-chip">💎 TON</div><div class="wallet-chip">🐕 DOGE</div><div class="wallet-chip">💙 ETH</div><div class="wallet-chip">🟣 NOT</div>`; }
+        function loadSocials() { socialsContainer.innerHTML = `<a href="#" class="social-icon">📘</a><a href="#" class="social-icon">🐦</a><a href="#" class="social-icon">📺</a><a href="#" class="social-icon">📱</a>`; }
+
+        // обработчики
+        document.getElementById('wheelSpinBtn').onclick = () => spinWheel(true, false);
+        document.getElementById('paidSpinBtn').onclick = () => spinWheel(false, false);
+        document.getElementById('cryptoPaySpinBtn').onclick = () => spinWheel(false, true);
+        document.getElementById('resetBalanceBtn').onclick = resetDemo;
+        document.getElementById('claimDailyEnergyBtn').onclick = claimDaily;
+        document.querySelectorAll('.service-btn[data-service]').forEach(btn => { btn.addEventListener('click', (e) => { const srv = e.currentTarget.dataset.service; showCryptoModal(srv); }); });
+        document.getElementById('closeCryptoModal').onclick = () => document.getElementById('cryptoModal').style.display = 'none';
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+        document.getElementById('faqBtn').onclick = () => openModal('faqModal');
+        document.getElementById('aboutBtn').onclick = () => openModal('aboutModal');
+        document.getElementById('closeFaqBtn').onclick = closeModals;
+        document.getElementById('closeAboutBtn').onclick = closeModals;
+
+        loadWallets();
+        loadSocials();
+        updateUI();
+        updateFreeSpinText();
+        updateDailyButton();
+        renderRating();
+    })();
+</script>
 </body>
 </html>
