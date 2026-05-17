@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Drops & Battles | GPSS</title>
+    <title>Drops & Battles | GPSS — Админ-панель</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,104 +12,141 @@
             background: radial-gradient(circle at 20% 0%, #0a0a1a, #02020a);
             min-height: 100vh;
             color: #fff;
-            padding: 16px;
-            padding-bottom: 100px;
-            animation: fadeBody 0.5s ease-out;
+            padding: 20px;
+            transition: all 0.3s;
         }
-        @keyframes fadeBody { to { opacity: 1; } }
-        .glass-card { background: rgba(20, 25, 45, 0.5); backdrop-filter: blur(12px); border: 1px solid rgba(124,58,237,0.3); border-radius: 28px; }
-        .fade-up { animation: slideUp 0.4s ease forwards; }
-        @keyframes slideUp { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);} }
-        .user-stats { display: flex; justify-content: space-between; background: linear-gradient(135deg, #1e1a3a, #0f0b2a); border-radius: 32px; padding: 14px 18px; margin-bottom: 20px; }
-        .stat-item { text-align: center; flex: 1; }
-        .stat-value { font-size: 22px; font-weight: 800; }
-        .stat-label { font-size: 11px; color: #b0b0d0; }
-        .balance-row { display: flex; justify-content: space-between; padding: 14px 18px; margin-bottom: 20px; font-weight: 700; font-size: 18px; }
-        .rates-short { display: flex; justify-content: space-between; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; background: rgba(0,0,0,0.4); border-radius: 28px; }
-        .wheel-block { text-align: center; padding: 18px; margin-bottom: 24px; }
-        .wheel-icon { font-size: 90px; cursor: pointer; transition: 0.1s; display: inline-block; }
-        .wheel-icon:active { transform: scale(0.94); }
-        .prizes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0; }
-        .prize-chip { background: #2a235a; border-radius: 40px; padding: 4px 14px; font-size: 12px; }
-        .energy-free { background: #2a2a55; border-radius: 48px; padding: 6px 14px; display: inline-block; margin: 8px auto; }
-        .daily-card { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin: 20px 0; background: #19163f; border-radius: 32px; border: 1px solid #a855f7; }
-        .wallets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px; }
-        .wallet-chip { background: #13112b; border-radius: 60px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #4a3e7a; cursor: pointer; transition: 0.2s; }
+        /* Динамические переменные (меняются через админку) */
+        :root {
+            --primary-color: #7c3aed;
+            --secondary-color: #a855f7;
+            --bg-surface: rgba(20, 25, 45, 0.6);
+            --card-radius: 28px;
+            --btn-radius: 60px;
+            --font-main: 'Inter', sans-serif;
+            --btn-style: gradient;
+        }
+        body {
+            background: radial-gradient(circle at 20% 0%, #0a0a1a, #02020a);
+            font-family: var(--font-main);
+        }
+        .glass-card { background: var(--bg-surface); backdrop-filter: blur(12px); border: 1px solid rgba(var(--primary-color), 0.3); border-radius: var(--card-radius); }
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--btn-radius);
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .btn-primary {
+            background: var(--btn-style) === 'gradient' ? linear-gradient(135deg, var(--primary-color), var(--secondary-color)) : var(--primary-color);
+            color: white;
+        }
+        .btn-outline { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); }
+        .btn:active { transform: scale(0.97); }
         .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-        .service-btn { background: linear-gradient(135deg, #2a235a, #1a1240); border-radius: 60px; padding: 12px; text-align: center; font-weight: 600; cursor: pointer; transition: 0.2s; border: 1px solid #6a4e9b; }
-        .service-btn:active { transform: scale(0.96); }
-        .info-btn { background: #1e1a3a; border-radius: 40px; padding: 12px; text-align: center; font-weight: 600; margin-top: 8px; border: 1px solid #9b6eff; cursor: pointer; }
-        .socials { position: fixed; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 200; }
-        .social-icon { background: #11101fcc; backdrop-filter: blur(8px); width: 44px; height: 44px; border-radius: 44px; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: 0.2s; border: 1px solid #7c3aed80; cursor: pointer; }
+        .service-btn { background: linear-gradient(135deg, #2a235a, #1a1240); border-radius: var(--btn-radius); padding: 12px; text-align: center; font-weight: 600; cursor: pointer; border: 1px solid #6a4e9b; transition: 0.2s; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
-        .modal-box { background: #12102f; border-radius: 32px; max-width: 360px; width: 85%; padding: 24px; text-align: center; border: 1px solid #a855f7; }
-        .rank-table { background: #0e0c22; border-radius: 24px; padding: 12px; margin-bottom: 20px; }
-        .rank-row { display: flex; justify-content: space-between; padding: 8px 8px; border-bottom: 1px solid #2a2560; }
-        .rank-header { color: #c084fc; font-weight: 700; }
-        .admin-panel { background: #0e0c22; border-radius: 24px; padding: 16px; margin-top: 12px; text-align: left; }
-        .admin-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #2a2560; font-size: 13px; }
-        @media (max-width: 560px) { .service-grid { grid-template-columns: repeat(2,1fr); } .stat-value { font-size: 18px; } }
+        .modal-box { background: #12102f; border-radius: var(--card-radius); max-width: 480px; width: 90%; padding: 24px; border: 1px solid var(--primary-color); }
+        .admin-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a2560; flex-wrap: wrap; gap: 8px; }
+        .admin-row input, .admin-row select { background: #2a235a; border: 1px solid var(--primary-color); border-radius: var(--btn-radius); padding: 8px 12px; color: white; }
+        .color-preview { width: 30px; height: 30px; border-radius: 8px; border: 1px solid white; }
+        @media (max-width: 600px) { .service-grid { grid-template-columns: repeat(2,1fr); } .admin-row { flex-direction: column; align-items: stretch; } }
     </style>
 </head>
 <body>
 
-<div class="socials" id="socialsContainer"></div>
-
-<div class="user-stats fade-up">
+<div class="user-stats" style="display: flex; justify-content: space-between; background: linear-gradient(135deg, #1e1a3a, #0f0b2a); border-radius: 32px; padding: 14px 18px; margin-bottom: 20px;">
     <div class="stat-item"><div class="stat-value" id="userLevel">1</div><div class="stat-label">Уровень</div></div>
     <div class="stat-item"><div class="stat-value" id="userXP">0</div><div class="stat-label">Опыт</div></div>
     <div class="stat-item"><div class="stat-value" id="userRankPlace">🏆</div><div class="stat-label">Рейтинг</div></div>
     <div class="stat-item"><div class="stat-value" id="userEnergyDaily">100</div><div class="stat-label">Энергия дня</div></div>
 </div>
 
-<div class="glass-card balance-row fade-up">
+<div class="glass-card" style="display: flex; justify-content: space-between; padding: 14px 18px; margin-bottom: 20px; font-weight: 700;">
     <div>⭐ <span id="stars">0</span></div>
     <div>🟢 <span id="vts">0</span> VTS</div>
     <div>🔵 <span id="nts">0</span> NTS</div>
 </div>
 
-<div class="rates-short fade-up">
-    <div>⭐ 50 Stars = 88 ₽</div>
-    <div>🟢 1 VTS = 1000 ₽</div>
-    <div>🔵 1 NTS = 10 000 ₽</div>
+<div class="rates-short" style="display: flex; justify-content: space-between; padding: 12px 16px; margin-bottom: 20px; background: rgba(0,0,0,0.4); border-radius: 28px;">
+    <div>⭐ 50 Stars = <span id="starsPriceRub">88</span> ₽</div>
+    <div>🟢 1 VTS = <span id="vtsRateRub">1000</span> ₽</div>
+    <div>🔵 1 NTS = <span id="ntsRateRub">10000</span> ₽</div>
 </div>
 
-<div class="wallets fade-up" id="walletsList"></div>
+<div id="walletsList" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px;"></div>
 
-<div class="glass-card fade-up" style="padding: 16px; margin-bottom: 20px;">
+<div class="glass-card" style="padding: 16px; margin-bottom: 20px;">
     <div style="font-weight: 800; margin-bottom: 12px;">🏆 ОБЩИЙ РЕЙТИНГ (по VTS)</div>
-    <div id="ratingContainer" class="rank-table">Загрузка...</div>
+    <div id="ratingContainer">Загрузка...</div>
     <div id="userRatingPlace" style="text-align:center; margin-top: 8px; font-size:13px;"></div>
 </div>
 
-<div class="glass-card wheel-block fade-up">
-    <div class="wheel-icon" id="wheelSpinBtn">🎡</div>
-    <div class="prizes" id="prizesList"></div>
-    <div id="wheelResult" style="margin: 6px 0; font-size: 14px;"></div>
-    <div class="energy-free" id="dailyEnergyInfo">⚡ Бесплатное вращение: доступно</div>
-    <button id="paidSpinBtn" style="background:#3a2e7a; border:none; border-radius:40px; padding:8px 20px; margin-top:6px;">➕ Купить вращение (5⭐)</button>
-    <button id="cryptoSpinBtn" style="background:#1e2a3a; border-radius:40px; padding:8px 20px; margin-top:6px;">💎 Купить вращение за TON</button>
-    <button id="resetBalanceBtn" style="background:#6b21a5; border:none; border-radius:40px; padding:6px 16px; margin-top:8px;">🔄 Демо-сброс</button>
+<div class="glass-card" style="text-align: center; padding: 18px; margin-bottom: 24px;">
+    <div class="wheel-icon" id="wheelSpinBtn" style="font-size: 90px; cursor: pointer;">🎡</div>
+    <div id="prizesList" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0;"></div>
+    <div id="wheelResult" style="margin: 6px 0;"></div>
+    <div class="energy-free" id="dailyEnergyInfo" style="background:#2a2a55; border-radius:48px; padding:6px 14px; display:inline-block;">⚡ Бесплатное вращение: доступно</div>
+    <button id="paidSpinBtn" class="btn btn-primary" style="margin-top:6px;">➕ Купить вращение (<span id="spinCostStars">5</span>⭐)</button>
+    <button id="resetBalanceBtn" class="btn btn-outline" style="margin-top:6px;">🔄 Демо-сброс</button>
 </div>
 
-<div class="daily-card fade-up">
+<div class="daily-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin: 20px 0; background: #19163f; border-radius: var(--card-radius);">
     <div>⚡ Суточная энергия: <span id="dailyEnergyAmount">100</span> ед.</div>
-    <button id="claimDailyEnergyBtn" style="background:#10b981; border:none; border-radius:40px; padding:6px 18px;">Забрать</button>
+    <button id="claimDailyEnergyBtn" style="background:#10b981; border:none; border-radius: var(--btn-radius); padding:6px 18px;">Забрать</button>
 </div>
 
-<div class="service-grid fade-up">
+<div class="service-grid">
     <div class="service-btn" data-service="battles">⚔️ Батлы</div>
     <div class="service-btn" data-service="bets">📈 Ставки</div>
     <div class="service-btn" data-service="politics">🏛️ Политика</div>
     <div class="service-btn" data-service="tasks">📋 Задания</div>
     <div class="service-btn" data-service="referral">👥 Рефералы</div>
-    <div class="service-btn" data-service="admin">👑 Админ</div>
+    <div class="service-btn" id="adminBtn">👑 Админ</div>
     <div class="service-btn" id="faqBtn">❓ FAQ</div>
 </div>
-<div class="info-btn" id="aboutBtn">ℹ️ О системе</div>
+<div class="info-btn" id="aboutBtn" style="background:#1e1a3a; border-radius:40px; padding:12px; text-align:center; margin-top:8px; cursor:pointer;">ℹ️ О системе</div>
 
-<div id="serviceModal" class="modal"><div class="modal-box"><h3 id="modalTitle">Сервис</h3><div id="modalContent"></div><button class="closeModalBtn">Закрыть</button></div></div>
-<div id="cryptoPaymentModal" class="modal"><div class="modal-box"><h3>💎 Оплата криптовалютой</h3><div id="cryptoWalletsList"></div><button class="closeModalBtn">Закрыть</button></div></div>
+<!-- Модалка Админ-дашборд (полное управление) -->
+<div id="adminModal" class="modal">
+    <div class="modal-box" style="max-width: 600px;">
+        <h3 style="margin-bottom: 16px;">👑 Админ-дашборд (полный контроль)</h3>
+        <div style="max-height: 70vh; overflow-y: auto; padding-right: 8px;">
+            <div style="font-weight:800; margin-top:12px;">🎨 Дизайн (цвета, шрифты, радиусы)</div>
+            <div class="admin-row"><span>Основной цвет</span><input type="color" id="primaryColor" value="#7c3aed"><div class="color-preview" style="background:#7c3aed;"></div></div>
+            <div class="admin-row"><span>Вторичный цвет</span><input type="color" id="secondaryColor" value="#a855f7"></div>
+            <div class="admin-row"><span>Радиус кнопок (px)</span><input type="range" id="btnRadius" min="0" max="60" value="60"><span id="btnRadiusVal">60px</span></div>
+            <div class="admin-row"><span>Радиус карточек (px)</span><input type="range" id="cardRadius" min="0" max="48" value="28"><span id="cardRadiusVal">28px</span></div>
+            <div class="admin-row"><span>Шрифт</span><select id="fontSelect"><option value="'Inter',sans-serif">Inter</option><option value="'Roboto',sans-serif">Roboto</option><option value="'Courier New',monospace">Monospace</option><option value="'Georgia',serif">Georgia</option></select></div>
+            <div class="admin-row"><span>Стиль кнопок</span><select id="btnStyleSelect"><option value="gradient">Градиент</option><option value="solid">Заливка</option><option value="outline">Контур</option></select></div>
+
+            <div style="font-weight:800; margin-top:20px;">🎡 Колесо фортуны</div>
+            <div class="admin-row"><span>Стоимость вращения (⭐)</span><input type="number" id="editSpinCost" value="5"><button id="saveSpinCostBtn">Сохранить</button></div>
+            <div class="admin-row"><span>Выигрыши (через запятую: 0.1vts,0.3vts,0.01nts...)</span><input type="text" id="editPrizes" style="flex:1;"><button id="savePrizesBtn">Обновить</button></div>
+
+            <div style="font-weight:800; margin-top:20px;">💰 Курсы валют</div>
+            <div class="admin-row"><span>⭐ 50 Stars (₽)</span><input type="number" id="editStarsPrice" value="88"><button id="saveStarsPriceBtn">Сохранить</button></div>
+            <div class="admin-row"><span>🟢 1 VTS (₽)</span><input type="number" id="editVtsRate" value="1000"><button id="saveVtsRateBtn">Сохранить</button></div>
+            <div class="admin-row"><span>🔵 1 NTS (₽)</span><input type="number" id="editNtsRate" value="10000"><button id="saveNtsRateBtn">Сохранить</button></div>
+
+            <div style="font-weight:800; margin-top:20px;">⚡ Суточная энергия</div>
+            <div class="admin-row"><span>Кол-во энергии</span><input type="number" id="editDailyEnergy" value="100"><button id="saveDailyEnergyBtn">Сохранить</button></div>
+
+            <div style="font-weight:800; margin-top:20px;">💰 Управление кошельками (из API)</div>
+            <div id="adminWalletsList"></div>
+
+            <div style="font-weight:800; margin-top:20px;">📱 Социальные сети (из API)</div>
+            <div id="adminSocialsList"></div>
+
+            <button id="refreshPageBtn" style="margin-top:20px; background:#7c3aed; border:none; border-radius:40px; padding:8px;">🔄 Применить и обновить страницу</button>
+        </div>
+        <button class="closeModalBtn" style="margin-top:16px; background:#555;">Закрыть</button>
+    </div>
+</div>
+
+<div id="cryptoModal" class="modal"><div class="modal-box"><h3>💎 Оплата криптой</h3><div id="cryptoWalletsList"></div><button class="closeModalBtn">Закрыть</button></div></div>
 <div id="faqModal" class="modal"><div class="modal-box"><h3>📘 FAQ</h3><p>VTS=1000₽, NTS=10000₽. Бесплатное вращение — 1р/12ч. Доп. вращения — 5⭐ или TON.</p><button class="closeModalBtn">Закрыть</button></div></div>
 <div id="aboutModal" class="modal"><div class="modal-box"><h3>🚀 GPSS Drops & Battles</h3><p>Децентрализованная экосистема, токены конвертируются после дропа.</p><button class="closeModalBtn">Закрыть</button></div></div>
 
@@ -117,21 +154,27 @@
     const API_URL = 'https://bot-1778732231-8080-krac59.bothost.tech';
     let userId = 1;
     let balance = { starsBalance: 0, vtsBalance: 0, ntsBalance: 0 };
-    let allUsers = [];
-    const SPIN_PRIZES = [
-        { amount: 0.1, type: 'vts' }, { amount: 0.3, type: 'vts' }, { amount: 0.01, type: 'vts' },
-        { amount: 0.05, type: 'vts' }, { amount: 0.07, type: 'vts' }, { amount: 0.001, type: 'nts' },
-        { amount: 0.005, type: 'nts' }, { amount: 0.07, type: 'nts' }, { amount: 0.1, type: 'nts' }
+    let spinPrizes = [
+        { amount: 0.1, type: 'vts' },{ amount: 0.3, type: 'vts' },{ amount: 0.01, type: 'vts' },
+        { amount: 0.05, type: 'vts' },{ amount: 0.07, type: 'vts' },{ amount: 0.001, type: 'nts' },
+        { amount: 0.005, type: 'nts' },{ amount: 0.07, type: 'nts' },{ amount: 0.1, type: 'nts' }
     ];
-    function renderPrizes() { document.getElementById('prizesList').innerHTML = SPIN_PRIZES.map(p => `<span class="prize-chip">${p.amount} ${p.type.toUpperCase()}</span>`).join(''); }
-    renderPrizes();
+    let spinCostStars = 5, starsPriceRub = 88, vtsRateRub = 1000, ntsRateRub = 10000, dailyEnergy = 100;
+
+    // UI элементы
+    function renderPrizes() { document.getElementById('prizesList').innerHTML = spinPrizes.map(p => `<span class="prize-chip" style="background:#2a235a; border-radius:40px; padding:4px 14px;">${p.amount} ${p.type.toUpperCase()}</span>`).join(''); }
+    function updateRatesDisplay() {
+        document.getElementById('starsPriceRub').innerText = starsPriceRub;
+        document.getElementById('vtsRateRub').innerText = vtsRateRub;
+        document.getElementById('ntsRateRub').innerText = ntsRateRub;
+        document.getElementById('spinCostStars').innerText = spinCostStars;
+        document.getElementById('dailyEnergyAmount').innerText = dailyEnergy;
+    }
+    renderPrizes(); updateRatesDisplay();
 
     async function api(path, options = {}) {
         try {
-            const res = await fetch(`${API_URL}${path}`, {
-                headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-                ...options
-            });
+            const res = await fetch(`${API_URL}${path}`, { headers: { 'Content-Type': 'application/json', 'x-user-id': userId }, ...options });
             if (!res.ok) throw new Error(await res.text());
             return res.json();
         } catch(e) { console.warn(`API error ${path}:`, e); return null; }
@@ -139,133 +182,134 @@
 
     async function updateBalance() {
         const data = await api('/api/users/balance');
-        if (data) {
-            balance = data;
-            document.getElementById('stars').innerText = balance.starsBalance ?? 0;
-            document.getElementById('vts').innerText = balance.vtsBalance ?? 0;
-            document.getElementById('nts').innerText = balance.ntsBalance ?? 0;
-        }
+        if (data) { balance = data; document.getElementById('stars').innerText = balance.starsBalance ?? 0; document.getElementById('vts').innerText = balance.vtsBalance ?? 0; document.getElementById('nts').innerText = balance.ntsBalance ?? 0; }
     }
 
     async function loadRating() {
         const users = await api('/api/admin/users');
         if (users && users.length) {
-            allUsers = users;
             const sorted = [...users].sort((a,b) => (b.vtsBalance||0) - (a.vtsBalance||0));
-            const container = document.getElementById('ratingContainer');
-            container.innerHTML = `<div class="rank-row rank-header"><span>#</span><span>Пользователь</span><span>VTS</span></div>`;
+            let html = `<div class="rank-row rank-header" style="display:flex; justify-content:space-between; padding:8px;"><span>#</span><span>Пользователь</span><span>VTS</span></div>`;
             sorted.forEach((u, idx) => {
                 const isMe = u.id == userId;
-                container.innerHTML += `<div class="rank-row"><span>${idx+1}</span><span>${u.username || u.firstName} ${isMe ? '👈' : ''}</span><span>${u.vtsBalance||0}</span></div>`;
+                html += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #2a2560;"><span>${idx+1}</span><span>${u.username || u.firstName} ${isMe ? '👈' : ''}</span><span>${u.vtsBalance||0}</span></div>`;
                 if (isMe) document.getElementById('userRatingPlace').innerText = `📍 Ваше место в рейтинге: ${idx+1} из ${sorted.length}`;
             });
-        } else { document.getElementById('ratingContainer').innerHTML = '<div class="rank-row">Нет данных</div>'; }
+            document.getElementById('ratingContainer').innerHTML = html;
+        } else document.getElementById('ratingContainer').innerHTML = '<div>Нет данных</div>';
     }
 
     async function loadWallets() {
         const wallets = await api('/api/admin/wallets');
         const container = document.getElementById('walletsList');
-        if (wallets && wallets.length) container.innerHTML = wallets.map(w => `<div class="wallet-chip" data-currency="${w.currency}" data-address="${w.address}">${w.icon || '🪙'} ${w.currency}</div>`).join('');
+        if (wallets && wallets.length) container.innerHTML = wallets.map(w => `<div class="wallet-chip" style="background:#13112b; border-radius:60px; padding:6px 16px;">${w.icon || '🪙'} ${w.currency}</div>`).join('');
         else container.innerHTML = '<div class="wallet-chip">💎 TON</div><div class="wallet-chip">🐕 DOGE</div>';
     }
 
-    async function loadSocials() {
-        const socials = await api('/api/admin/socials');
-        const container = document.getElementById('socialsContainer');
-        if (socials && socials.length) {
-            container.innerHTML = socials.map(s => {
-                let iconHtml = '';
-                if (s.name?.toLowerCase().includes('youtube')) iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="24" style="filter: invert(1);">';
-                else if (s.name?.toLowerCase().includes('telegram')) iconHtml = '📱';
-                else if (s.name?.toLowerCase().includes('twitter')) iconHtml = '🐦';
-                else if (s.name?.toLowerCase().includes('instagram')) iconHtml = '📸';
-                else iconHtml = s.icon || '🔗';
-                return `<a href="${s.url}" target="_blank" class="social-icon">${iconHtml}</a>`;
-            }).join('');
-        } else container.innerHTML = `<a href="#" class="social-icon">🐦</a><a href="#" class="social-icon">📘</a><a href="#" class="social-icon">📺</a>`;
-    }
+    let lastFreeSpin = localStorage.getItem('lastFreeSpinTime') || 0;
+    function canSpinFree() { return !lastFreeSpin || (Date.now() - lastFreeSpin) > 12*3600*1000; }
+    function updateFreeSpinUI() { document.getElementById('dailyEnergyInfo').innerText = canSpinFree() ? '⚡ Бесплатное вращение: доступно' : '⏳ Бесплатное вращение через несколько часов'; }
 
-    function showCryptoPayment(actionName, callback) {
+    async function commitSpin(isFree) {
+        const prize = spinPrizes[Math.floor(Math.random() * spinPrizes.length)];
+        if (!isFree) balance.starsBalance -= spinCostStars;
+        if (prize.type === 'vts') balance.vtsBalance += prize.amount;
+        else balance.ntsBalance += prize.amount;
+        if (isFree) { localStorage.setItem('lastFreeSpinTime', Date.now()); updateFreeSpinUI(); }
+        await updateBalance();
+        document.getElementById('wheelResult').innerHTML = `🎉 Выигрыш: ${prize.amount} ${prize.type.toUpperCase()}!`;
+        setTimeout(() => document.getElementById('wheelResult').innerHTML = '', 2500);
+        await loadRating();
+    }
+    document.getElementById('wheelSpinBtn').onclick = () => { if(!canSpinFree()) alert('Бесплатное вращение недоступно'); else commitSpin(true); };
+    document.getElementById('paidSpinBtn').onclick = () => { if(balance.starsBalance < spinCostStars) alert(`Недостаточно Stars (нужно ${spinCostStars}⭐)`); else commitSpin(false); };
+    document.getElementById('resetBalanceBtn').onclick = async () => { await api('/api/admin/users/update', { method:'POST', body: JSON.stringify({ userId, stars:1000, vts:500, nts:100 }) }); updateBalance(); alert('Баланс сброшен'); };
+    let lastDaily = localStorage.getItem('lastDailyEnergy') || 0;
+    function canClaimDaily() { return !lastDaily || (Date.now() - lastDaily) > 24*3600*1000; }
+    function updateDailyBtn() { const btn = document.getElementById('claimDailyEnergyBtn'); if(canClaimDaily()) { btn.innerText='Забрать'; btn.disabled=false; } else { btn.innerText='Выдана'; btn.disabled=true; } }
+    document.getElementById('claimDailyEnergyBtn').onclick = () => { if(canClaimDaily()) { localStorage.setItem('lastDailyEnergy', Date.now()); alert(`✅ +${dailyEnergy} энергии`); updateDailyBtn(); } else alert('Уже получена'); };
+
+    // Админка: изменения дизайна + сохранение в localStorage
+    function applyDesign() {
+        const primary = document.getElementById('primaryColor').value;
+        const secondary = document.getElementById('secondaryColor').value;
+        const btnRad = document.getElementById('btnRadius').value;
+        const cardRad = document.getElementById('cardRadius').value;
+        const font = document.getElementById('fontSelect').value;
+        const btnStyle = document.getElementById('btnStyleSelect').value;
+        document.documentElement.style.setProperty('--primary-color', primary);
+        document.documentElement.style.setProperty('--secondary-color', secondary);
+        document.documentElement.style.setProperty('--btn-radius', btnRad + 'px');
+        document.documentElement.style.setProperty('--card-radius', cardRad + 'px');
+        document.documentElement.style.setProperty('--font-main', font);
+        document.documentElement.style.setProperty('--btn-style', btnStyle);
+        document.getElementById('btnRadiusVal').innerText = btnRad + 'px';
+        document.getElementById('cardRadiusVal').innerText = cardRad + 'px';
+        localStorage.setItem('adminColors', JSON.stringify({ primary, secondary, btnRad, cardRad, font, btnStyle }));
+    }
+    function loadSavedDesign() {
+        const saved = localStorage.getItem('adminColors');
+        if(saved){
+            const s = JSON.parse(saved);
+            document.getElementById('primaryColor').value = s.primary;
+            document.getElementById('secondaryColor').value = s.secondary;
+            document.getElementById('btnRadius').value = s.btnRad;
+            document.getElementById('cardRadius').value = s.cardRad;
+            document.getElementById('fontSelect').value = s.font;
+            document.getElementById('btnStyleSelect').value = s.btnStyle;
+            applyDesign();
+        }
+    }
+    document.getElementById('primaryColor').addEventListener('input', applyDesign);
+    document.getElementById('secondaryColor').addEventListener('input', applyDesign);
+    document.getElementById('btnRadius').addEventListener('input', applyDesign);
+    document.getElementById('cardRadius').addEventListener('input', applyDesign);
+    document.getElementById('fontSelect').addEventListener('change', applyDesign);
+    document.getElementById('btnStyleSelect').addEventListener('change', applyDesign);
+
+    document.getElementById('saveSpinCostBtn').onclick = () => { spinCostStars = parseInt(document.getElementById('editSpinCost').value); updateRatesDisplay(); alert('Стоимость вращения обновлена'); };
+    document.getElementById('savePrizesBtn').onclick = () => {
+        const raw = document.getElementById('editPrizes').value;
+        const parts = raw.split(',');
+        spinPrizes = [];
+        parts.forEach(part => {
+            const match = part.match(/([\d.]+)(vts|nts)/);
+            if(match) spinPrizes.push({ amount: parseFloat(match[1]), type: match[2] });
+        });
+        if(spinPrizes.length===0) spinPrizes = [{ amount:0.1, type:'vts' }];
+        renderPrizes();
+        alert('Выигрыши обновлены');
+    };
+    document.getElementById('saveStarsPriceBtn').onclick = () => { starsPriceRub = parseInt(document.getElementById('editStarsPrice').value); updateRatesDisplay(); alert('Курс Stars обновлён'); };
+    document.getElementById('saveVtsRateBtn').onclick = () => { vtsRateRub = parseInt(document.getElementById('editVtsRate').value); updateRatesDisplay(); alert('Курс VTS обновлён'); };
+    document.getElementById('saveNtsRateBtn').onclick = () => { ntsRateRub = parseInt(document.getElementById('editNtsRate').value); updateRatesDisplay(); alert('Курс NTS обновлён'); };
+    document.getElementById('saveDailyEnergyBtn').onclick = () => { dailyEnergy = parseInt(document.getElementById('editDailyEnergy').value); updateRatesDisplay(); alert('Суточная энергия обновлена'); };
+    document.getElementById('refreshPageBtn').onclick = () => location.reload();
+
+    async function refreshAdminWallets() { const wallets = await api('/api/admin/wallets'); const container = document.getElementById('adminWalletsList'); if(wallets && wallets.length) container.innerHTML = wallets.map(w => `<div class="admin-row"><span>${w.currency}: ${w.address.slice(0,10)}...</span><button onclick="alert('Редактирование кошелька ${w.currency} (требуется бэкенд)')">✏️</button></div>`).join(''); else container.innerHTML = '<div>Нет кошельков</div>'; }
+    async function refreshAdminSocials() { const socials = await api('/api/admin/socials'); const container = document.getElementById('adminSocialsList'); if(socials && socials.length) container.innerHTML = socials.map(s => `<div class="admin-row"><span>${s.name}: ${s.url}</span><button onclick="alert('Редактирование соцсети ${s.name} (требуется бэкенд)')">✏️</button></div>`).join(''); else container.innerHTML = '<div>Нет соцсетей</div>'; }
+
+    function showCryptoPayment(action, callback) {
         const walletsDiv = document.getElementById('cryptoWalletsList');
         walletsDiv.innerHTML = '';
         document.querySelectorAll('.wallet-chip').forEach(w => {
             const currency = w.innerText.trim();
             const btn = document.createElement('button');
-            btn.innerText = `💸 Оплатить ${actionName} через ${currency}`;
-            btn.style.background = '#2a235a';
-            btn.style.border = 'none';
-            btn.style.borderRadius = '40px';
-            btn.style.padding = '8px';
-            btn.style.margin = '6px 0';
-            btn.style.width = '100%';
-            btn.onclick = () => { alert(`✅ Оплата ${actionName} через ${currency} выполнена (демо)`); document.getElementById('cryptoPaymentModal').style.display = 'none'; if(callback) callback(); };
+            btn.innerText = `💸 Оплатить ${action} через ${currency}`;
+            btn.style.background = '#2a235a'; btn.style.border = 'none'; btn.style.borderRadius = '40px'; btn.style.padding = '8px'; btn.style.width = '100%'; btn.style.margin = '6px 0';
+            btn.onclick = () => { alert(`✅ Оплата ${action} через ${currency} выполнена`); document.getElementById('cryptoModal').style.display = 'none'; if(callback) callback(); };
             walletsDiv.appendChild(btn);
         });
-        document.getElementById('cryptoPaymentModal').style.display = 'flex';
+        document.getElementById('cryptoModal').style.display = 'flex';
     }
-
-    async function showAdmin() { const stats = await api('/api/admin/stats'); const users = await api('/api/admin/users'); const wallets = await api('/api/admin/wallets'); let html = `<div class="admin-panel"><div style="font-weight:800;">📊 Статистика</div><div class="admin-row">👥 Пользователей: ${stats?.totalUsers || 0}</div><div class="admin-row">🎡 Вращений: ${stats?.totalSpins || 0}</div><div class="admin-row">⚔️ Батлов: ${stats?.totalBattles || 0}</div><div style="font-weight:800; margin-top:12px;">👑 Пользователи (топ 5)</div>`; if (users?.length) users.slice(0,5).forEach(u => html += `<div class="admin-row">${u.username || u.firstName}: ⭐${u.starsBalance} 🟢${u.vtsBalance}</div>`); html += `<div style="font-weight:800; margin-top:12px;">💰 Кошельки</div>`; if (wallets?.length) wallets.forEach(w => html += `<div class="admin-row">${w.currency}: ${w.address.slice(0,10)}...</div>`); html += `</div>`; document.getElementById('modalContent').innerHTML = html; document.getElementById('modalTitle').innerText = '👑 Админ-панель'; document.getElementById('serviceModal').style.display = 'flex'; }
-    function showTasks() { const tasks = [ { name: "➕ Пригласи 3 друзей", reward: "50 VTS", progress: "0/3" }, { name: "🎡 Крути колесо 5 раз", reward: "30 VTS", progress: "0/5" }, { name: "⚔️ Выиграй 2 батла", reward: "100 VTS", progress: "0/2" }, { name: "⭐ Пополни баланс на 500 Stars", reward: "200 VTS", progress: "0/1" } ]; let html = `<div class="admin-panel"><div style="font-weight:800;">📋 Ежедневные задания</div>`; tasks.forEach(t => html += `<div class="admin-row"><div><b>${t.name}</b><br><small>${t.progress}</small></div><div>🏆 ${t.reward}</div></div>`); html += `<div style="margin-top:16px;"><button id="claimAllTasksBtn" style="background:#7c3aed; border:none; border-radius:40px; padding:8px;">Забрать все награды</button></div></div>`; document.getElementById('modalContent').innerHTML = html; document.getElementById('modalTitle').innerText = '📋 Задания от админа'; document.getElementById('serviceModal').style.display = 'flex'; document.getElementById('claimAllTasksBtn')?.addEventListener('click', () => alert('✅ Награды получены (демо)')); }
-    async function showBattles() { showCryptoPayment('батлы', async () => { const data = await api('/api/games/battle/find', { method:'POST' }); alert(`Соперник найден: ${data?.opponent?.username || 'бот'}`); }); }
-    async function showBets() { showCryptoPayment('ставки', async () => { const events = await api('/api/games/bets/events'); alert(`Доступно событий: ${events?.length || 0}`); }); }
-    async function showPolitics() { showCryptoPayment('политические ставки', async () => { const events = await api('/api/games/politics/events'); alert(`Политических событий: ${events?.length || 0}`); }); }
-    async function showReferral() { showCryptoPayment('рефералы', async () => { const link = await api('/api/referral/link'); alert(`Ваша реферальная ссылка: ${link?.link || 'ошибка'}`); }); }
-
-    let lastFreeSpin = localStorage.getItem('lastFreeSpinTime') || 0;
-    function canSpinFree() { return !lastFreeSpin || (Date.now() - lastFreeSpin) > 12*3600*1000; }
-    function updateFreeSpinUI() { document.getElementById('dailyEnergyInfo').innerText = canSpinFree() ? '⚡ Бесплатное вращение: доступно' : '⏳ Бесплатное вращение через несколько часов'; }
-    async function spin(isFree, useCrypto = false) {
-        if (isFree && !canSpinFree()) return alert('Бесплатное вращение недоступно');
-        if (!isFree && !useCrypto && balance.starsBalance < 5) return alert('Недостаточно Stars (нужно 5⭐)');
-        if (useCrypto) { showCryptoPayment('вращение колеса', async () => { await commitSpin(isFree); }); return; }
-        await commitSpin(isFree);
-    }
-    async function commitSpin(isFree) {
-        if (!isFree && !balance.starsBalance >= 5) return;
-        const prize = SPIN_PRIZES[Math.floor(Math.random() * SPIN_PRIZES.length)];
-        if (!isFree) balance.starsBalance -= 5;
-        if (prize.type === 'vts') balance.vtsBalance += prize.amount;
-        else balance.ntsBalance += prize.amount;
-        if (isFree) { localStorage.setItem('lastFreeSpinTime', Date.now()); updateFreeSpinUI(); }
-        await updateBalance();
-        document.getElementById('wheelResult').innerText = `🎉 Выигрыш: ${prize.amount} ${prize.type.toUpperCase()}!`;
-        setTimeout(() => document.getElementById('wheelResult').innerText = '', 2500);
-        await loadRating();
-    }
-    document.getElementById('wheelSpinBtn').onclick = () => spin(true);
-    document.getElementById('paidSpinBtn').onclick = () => spin(false);
-    document.getElementById('cryptoSpinBtn').onclick = () => spin(false, true);
-    document.getElementById('resetBalanceBtn').onclick = async () => { await api('/api/admin/users/update', { method:'POST', body: JSON.stringify({ userId, stars:1000, vts:500, nts:100 }) }); updateBalance(); alert('Баланс сброшен'); };
-
-    let lastDaily = localStorage.getItem('lastDailyEnergy') || 0;
-    function canClaimDaily() { return !lastDaily || (Date.now() - lastDaily) > 24*3600*1000; }
-    function updateDailyBtn() { const btn = document.getElementById('claimDailyEnergyBtn'); if(canClaimDaily()) { btn.innerText='Забрать'; btn.disabled=false; } else { btn.innerText='Выдана'; btn.disabled=true; } }
-    document.getElementById('claimDailyEnergyBtn').onclick = () => { if(canClaimDaily()) { localStorage.setItem('lastDailyEnergy', Date.now()); alert('✅ Энергия получена'); updateDailyBtn(); } else alert('Уже получена'); };
-
-    document.querySelectorAll('.service-btn[data-service]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const srv = e.currentTarget.dataset.service;
-            if (srv === 'admin') showAdmin();
-            else if (srv === 'tasks') showTasks();
-            else if (srv === 'battles') showBattles();
-            else if (srv === 'bets') showBets();
-            else if (srv === 'politics') showPolitics();
-            else if (srv === 'referral') showReferral();
-        });
-    });
-
-    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-    document.querySelectorAll('.closeModalBtn').forEach(btn => btn.onclick = closeModals);
+    function showAdminDashboard() { refreshAdminWallets(); refreshAdminSocials(); document.getElementById('adminModal').style.display = 'flex'; }
+    document.getElementById('adminBtn').onclick = showAdminDashboard;
+    document.querySelectorAll('.closeModalBtn').forEach(btn => btn.onclick = () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'));
     document.getElementById('faqBtn').onclick = () => document.getElementById('faqModal').style.display = 'flex';
     document.getElementById('aboutBtn').onclick = () => document.getElementById('aboutModal').style.display = 'flex';
+    document.querySelectorAll('.service-btn[data-service]').forEach(btn => btn.addEventListener('click', (e) => { const srv = e.currentTarget.dataset.service; showCryptoPayment(srv, () => alert(`Сервис ${srv} активирован`)); }));
 
-    updateBalance();
-    loadRating();
-    loadWallets();
-    loadSocials();
-    updateFreeSpinUI();
-    updateDailyBtn();
-    setInterval(() => { updateBalance(); loadRating(); }, 15000);
+    updateBalance(); loadRating(); loadWallets(); updateFreeSpinUI(); updateDailyBtn(); loadSavedDesign(); setInterval(() => { updateBalance(); loadRating(); }, 15000);
 </script>
 </body>
 </html>
